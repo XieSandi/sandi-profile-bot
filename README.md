@@ -1,2 +1,0 @@
-# sandi-profile-bot
- 
