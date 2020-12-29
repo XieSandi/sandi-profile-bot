@@ -11,13 +11,11 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
 app = Flask(__name__)
-
 # get LINE_CHANNEL_ACCESS_TOKEN from your environment variable
 line_bot_api = LineBotApi(
     config("LINE_CHANNEL_ACCESS_TOKEN",
            default=os.environ.get('LINE_ACCESS_TOKEN'))
 )
-
 # get LINE_CHANNEL_SECRET from your environment variable
 handler = WebhookHandler(
     config("LINE_CHANNEL_SECRET",
@@ -47,30 +45,11 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    text = event.message.text
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=event.message.text)
+    )
 
-    if text == 'profile':
-        if isinstance(event.source, SourceUser):
-            profile = line_bot_api.get_profile(event.source.user_id)
-            line_bot_api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='Status message: ' + str(profile.status_message))
-                ]
-            )
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
-
-    elif text == 'quota':
-        quota = line_bot_api.get_message_quota()
-        line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(text='type: ' + quota.type),
-                TextSendMessage(text='value: ' + str(quota.value))
-            ]
-        )
 
 
 if __name__ == "__main__":
