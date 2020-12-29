@@ -11,11 +11,13 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
 app = Flask(__name__)
+
 # get LINE_CHANNEL_ACCESS_TOKEN from your environment variable
 line_bot_api = LineBotApi(
     config("LINE_CHANNEL_ACCESS_TOKEN",
            default=os.environ.get('LINE_ACCESS_TOKEN'))
 )
+
 # get LINE_CHANNEL_SECRET from your environment variable
 handler = WebhookHandler(
     config("LINE_CHANNEL_SECRET",
@@ -50,7 +52,14 @@ def handle_text_message(event):
         TextSendMessage(text=event.message.text)
     )
 
-
+@handler.add(MessageEvent, message=StickerMessage)
+def handle_sticker_message(event):
+    line_bot_api.reply_message(
+        event.reply_token,
+        StickerSendMessage(
+            package_id=event.message.package_id,
+            sticker_id=event.message.sticker_id)
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
