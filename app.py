@@ -47,39 +47,12 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    text = event.message.text
-
-    if text == 'profile':
-        if isinstance(event.source, SourceUser):
-            profile = line_bot_api.get_profile(event.source.user_id)
-            line_bot_api.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text='Display name: ' + profile.display_name),
-                    TextSendMessage(text='Status message: ' + str(profile.status_message))
-                ]
-            )
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text="Bot can't use profile API without user ID"))
-
-    elif text == 'quota':
-        quota = line_bot_api.get_message_quota()
-        line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(text='type: ' + quota.type),
-                TextSendMessage(text='value: ' + str(quota.value))
-            ]
-        )
-        
-@handler.add(MessageEvent, message=StickerMessage)
-def handle_sticker_message(event):
     line_bot_api.reply_message(
         event.reply_token,
-        StickerSendMessage(
-            package_id=event.message.package_id,
-            sticker_id=event.message.sticker_id)
+        TextSendMessage(text=event.message.text)
     )
+
+
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
